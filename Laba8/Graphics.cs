@@ -52,7 +52,6 @@ namespace Laba8
 			_light = new Light(new Vector4(0f, 0f, 0f, 1f), new Vector4(0.6f, 0.6f, 0.6f, 1f),
 				new Vector4(0.8f, 0.8f, 0.8f, 1f), new Vector4(1f, 1f, 1f, 1f));
 
-			_shaders.Add(Shader);
 			_shaders.Add(new Shader("../../../DATA/SHADERS/SimplePostProcessing.fsh",
 				"../../../DATA/SHADERS/SimplePostProcessing.fsh"));
 
@@ -110,19 +109,20 @@ namespace Laba8
 			base.OnRenderFrame(args);
 			GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-			_fbo0.Bind();
-			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+			/*_fbo0.Bind();
+			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);*/
 
 			Title = "Laba8 " + $"{Fps} fps" + " " + _scene.GetSceneDescription();
-			
-			_scene.SetObjects(_shaders[0]);
-			RenderManager.GetInstance().RenderObjects(_shaders[0]);
 
-			_fbo0.ResolveToFBO(_fbo1);
+			_scene.SetObjects(Shader);
+			RenderManager.GetInstance().RenderObjects(Shader);
+
+			/*_fbo0.ResolveToFBO(_fbo1);
 			_fbo0.Unbind();
 			_fbo1.BindColorTexture();
 			_shaders[_currentShader].Use();
-			_shaders[_currentShader].SetUniform("texture_0", 0);
+			_shaders[_currentShader].SetUniform("texture_0", 0);*/
+			DrawBox();
 			SwapBuffers();
 		}
 
@@ -137,6 +137,43 @@ namespace Laba8
 			base.OnMouseWheel(e);
 
 			_camera.Fov -= e.OffsetY;
+		}
+
+		private void DrawBox()
+		{
+			int VAO_Index = 0;
+			int VBO_Index = 0;
+			int VertexCount = 0;
+			bool Init = true;
+			if (Init)
+			{
+				Init = false;
+				VBO_Index = GL.GenBuffer();
+				GL.BindBuffer(BufferTarget.ArrayBuffer, VBO_Index);
+				float[] Verteces = {
+					-0.5f, +0.5f,
+					-0.5f, -0.5f,
+					+0.5f, +0.5f,
+					+0.5f, +0.5f,
+					-0.5f, -0.5f,
+					+0.5f, -0.5f
+				};
+				GL.BufferData(BufferTarget.ArrayBuffer, Verteces.Length * sizeof(float), Verteces, BufferUsageHint.StaticDraw);
+
+				VAO_Index = GL.GenVertexArray();
+				GL.BindVertexArray(VAO_Index);
+
+				GL.BindBuffer(BufferTarget.ArrayBuffer, VBO_Index);
+				int location = 0;
+				GL.VertexAttribPointer(location, 2, VertexAttribPointerType.Float, false, 0, 0);
+				GL.EnableVertexAttribArray(location);
+
+				GL.BindVertexArray(0);
+
+				VertexCount = 6;
+			}
+			GL.BindVertexArray(VAO_Index);
+			GL.DrawArrays(PrimitiveType.Triangles, 0, VertexCount);
 		}
 	}
 }

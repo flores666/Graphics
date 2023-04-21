@@ -62,8 +62,8 @@ namespace GraphicsBase.Managers
 			TexturesChanged = 0;
 			MaterialsChanged = 0;
 			DrawCalls = 0;
-		
-			if (_graphicObjects.Count == 0) return;
+			shader.Use();
+            if (_graphicObjects.Count == 0) return;
 			_graphicObjects.Sort(new GraphicObjectsComparer());
 			shader.SetUniform("view", _camera.GetViewMatrix());
 			shader.SetUniform("projection", _camera.GetProjectionMatrix());
@@ -104,6 +104,7 @@ namespace GraphicsBase.Managers
 				}
 			}
 			ClearQueue();
+			shader.Dispose();
 		}
 	}
 }

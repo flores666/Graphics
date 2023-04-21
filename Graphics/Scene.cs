@@ -54,6 +54,7 @@ namespace GraphicsBase
 
 		public void SetObjects(Shader shader)
 		{
+			shader.Use();
 			RenderedObjectsCount = 0;
 			_light.SetToShader(shader);
 			_light.Position = new Vector4(0f, 120f, 0f, 1f) * _camera.GetViewMatrix();
@@ -68,6 +69,7 @@ namespace GraphicsBase
 				RenderManager.GetInstance().AddToRenderQueue(obj);
 				RenderedObjectsCount++;
 			}
+			shader.Dispose();
 		}
 	}
 }

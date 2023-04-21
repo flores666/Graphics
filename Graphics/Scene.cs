@@ -10,16 +10,14 @@ namespace GraphicsBase
 		private List<GraphicObject> _graphicObjects;
 		private Camera _camera;
 		private Light _light;
-		private Shader _shader;
 
 		public int RenderedObjectsCount { get; private set; }
 
-		public Scene(string filePath, Camera camera, Light light, Shader shader)
+		public Scene(string filePath, Camera camera, Light light)
 		{
 			_graphicObjects = new();
 			_camera = camera;
 			_light = light;
-			_shader = shader;
 			Load(filePath);
 		}
 
@@ -54,12 +52,13 @@ namespace GraphicsBase
 				   "[" + "Draw calls: " + instance.DrawCalls + "]";
 		}
 
-		public void SetObjects()
+		public void SetObjects(Shader shader)
 		{
 			RenderedObjectsCount = 0;
+			_light.SetToShader(shader);
 			_light.Position = new Vector4(0f, 120f, 0f, 1f) * _camera.GetViewMatrix();
-			_shader.SetUniform("lPosition", _light.Position);
-			_shader.SetUniform("fogColor", new Vector4(0.33f, 0.65f, 0.9f, 1f));
+			shader.SetUniform("lPosition", _light.Position);
+			shader.SetUniform("fogColor", new Vector4(0.33f, 0.65f, 0.9f, 1f));
 
 			foreach (var obj in _graphicObjects)
 			{

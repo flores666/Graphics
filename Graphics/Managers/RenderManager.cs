@@ -29,15 +29,6 @@ namespace GraphicsBase.Managers
 			_graphicObjects.Add(obj);
 		}
 
-		public void SetLight(Light light)
-		{
-			if (light != null && light.IsSetToShader == false)
-			{
-				light.SetToShader(_shader);
-				light.IsSetToShader = true;
-			}
-		}
-
 		public void SetCamera(Camera camera)
 		{
 			_camera = camera;
@@ -54,19 +45,19 @@ namespace GraphicsBase.Managers
 			if(_graphicObjects.Count > 0) _graphicObjects.Clear();
 		}
 
-		private void DrawFirst()
+		private void DrawFirst(Shader shader)
 		{
 			var obj = _graphicObjects.FirstOrDefault();
 			if (obj == default(GraphicObject)) return;
-			_shader.SetUniform("model[0]", obj.ModelMatrix);
+			shader.SetUniform("model[0]", obj.ModelMatrix);
 			var instance = ResourceManager.GetInstance();
 			instance.GetTexture(obj.TextureId)?.Bind(TextureUnit.Texture0);
 			TexturesChanged++;
-			instance.GetMaterial(obj.MaterialId)?.SetToShader(_shader);
+			instance.GetMaterial(obj.MaterialId)?.SetToShader(shader);
 			MaterialsChanged++;
 		}
 
-		public void RenderObjects()
+		public void RenderObjects(Shader shader)
 		{
 			TexturesChanged = 0;
 			MaterialsChanged = 0;
@@ -74,11 +65,11 @@ namespace GraphicsBase.Managers
 		
 			if (_graphicObjects.Count == 0) return;
 			_graphicObjects.Sort(new GraphicObjectsComparer());
-			_shader.SetUniform("view", _camera.GetViewMatrix());
-			_shader.SetUniform("projection", _camera.GetProjectionMatrix());
-			_shader.SetUniform("texture_0", 0);
+			shader.SetUniform("view", _camera.GetViewMatrix());
+			shader.SetUniform("projection", _camera.GetProjectionMatrix());
+			//shader.SetUniform("texture_0", 0);
 
-			DrawFirst();
+			DrawFirst(shader);
 			var sameMeshesCount = 0;
 			var sameModels = new List<Matrix4>();
 			var instance = ResourceManager.GetInstance();
@@ -93,10 +84,10 @@ namespace GraphicsBase.Managers
 				{
 					for (int j = 0; j < sameModels.Count; j++)
 					{
-						_shader.SetUniform($"model[{j}]", sameModels[j]);
+						shader.SetUniform($"model[{j}]", sameModels[j]);
 					}
 					var mesh = instance.GetMesh(prevObj.MeshId);
-					mesh?.DrawMany(_shader, sameMeshesCount);
+					mesh?.DrawMany(shader, sameMeshesCount);
 					DrawCalls++;
 					sameMeshesCount = 0;
 					sameModels.Clear();
@@ -108,7 +99,7 @@ namespace GraphicsBase.Managers
 				}
 				if (prevObj.MaterialId != obj.MaterialId)
 				{
-					instance.GetMaterial(obj.MaterialId)?.SetToShader(_shader);
+					instance.GetMaterial(obj.MaterialId)?.SetToShader(shader);
 					MaterialsChanged++;
 				}
 			}

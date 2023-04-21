@@ -38,7 +38,7 @@ void main (void)
 	float fogIntensity = clamp((100 + position.z) / (200 - 100), 0, 1);
 	color = color * vec3(texColor);
 	color = mix(vec3(fogColor), color, fogIntensity);
-	
+
 	outputColor = vec4(color, alpha);
 }
 

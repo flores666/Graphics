@@ -5,7 +5,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-namespace Laba7
+namespace Laba8
 {
     public class Graphics : GraphicsMain
 	{
@@ -17,7 +17,7 @@ namespace Laba7
 		private Vector2 _lastMove;
 
 		private Scene _scene;
-		private string _scenePath = "../../../DATA/SCENES/big_scene.json";
+		private string _scenePath = "../../../DATA/SCENES/small_scene.json";
 
 		public Graphics(int width, int height, string title) : base(width, height, title) 
 		{
@@ -30,14 +30,14 @@ namespace Laba7
 			base.OnLoad();
 
 			GL.Enable(EnableCap.DepthTest);
+
 			var instance = RenderManager.GetInstance();
 			_camera = new(new Vector3(0f, 1.2f, 15f), (float)Size.X / Size.Y) { Fov = 70f };
 			var light = new Light(new Vector4(0f, 0f, 0f, 1f), new Vector4(0.6f, 0.6f, 0.6f, 1f),
 				new Vector4(0.8f, 0.8f, 0.8f, 1f), new Vector4(1f, 1f, 1f, 1f));
-			instance.SetShader(Shader);
-			instance.SetLight(light);
+
 			instance.SetCamera(_camera);
-			_scene = new(_scenePath, _camera, light, Shader);
+			_scene = new(_scenePath, _camera, light);
 			CursorState = CursorState.Grabbed;
 		}
 		
@@ -72,9 +72,11 @@ namespace Laba7
 			base.OnRenderFrame(args);
 
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-			Title = "Laba7 " + $"{Fps} fps" + " " + _scene.GetSceneDescription();
-			_scene.SetObjects();
-			RenderManager.GetInstance().RenderObjects();
+			Title = "Laba8 " + $"{Fps} fps" + " " + _scene.GetSceneDescription();
+			Shader.Use();
+			Shader.SetUniform("texture_0", 0);
+			_scene.SetObjects(Shader);
+			RenderManager.GetInstance().RenderObjects(Shader);
 			SwapBuffers();
 		}
 

@@ -1,8 +1,7 @@
 #version 330 core
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 projectionMatrix;
+uniform mat4 modelViewMatrix;
 
 layout(location = 0) in vec3 vPosition;
 layout(location = 1) in vec3 vNormal;
@@ -12,13 +11,11 @@ out vec3 position;
 out vec3 normal;
 out vec2 texCoord;
 
-void main()
+void main ()
 {
-	mat4 modelView = model * view;
-	position = vec3(modelView * vec4(vPosition, 1));
-	normal = vec3(modelView * vec4(vNormal, 0));
-	texCoord = vec2(vTexCoord.s, 1.0 - vTexCoord.t);
+	position = vec3(modelViewMatrix * vec4 (vPosition, 1));
+	normal = vec3(modelViewMatrix * vec4 (vNormal, 0));
+	texCoord = vec2(vTexCoord.s, 1.0 - vTexCoord.t); 
 
-	mat4 PVM = projection * view * model;
-	gl_Position = PVM * vec4(vPosition, 1.0);
+	gl_Position = projectionMatrix * modelViewMatrix * vec4 (vPosition, 1) ;
 }
